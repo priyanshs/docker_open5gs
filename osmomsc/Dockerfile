@@ -27,6 +27,15 @@
 FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
+
+RUN apt-get update && apt-get upgrade -y \
+&& apt-get install -y
+
+
 ENV OSMOCOM_REPO="https://downloads.osmocom.org/packages/osmocom:/latest/Debian_11"
 
 # Install updates and dependencies
