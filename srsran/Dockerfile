@@ -28,12 +28,8 @@ FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 # Install updates and dependencies
 RUN apt-get update && \
@@ -42,8 +38,12 @@ RUN apt-get update && \
 
 # UHD drivers for USRP
 RUN add-apt-repository ppa:ettusresearch/uhd && \
-    apt update && apt -y install libuhd-dev uhd-host && \
-    uhd_images_downloader
+    apt update && apt -y install libuhd-dev uhd-host  
+#    uhd_images_downloader  --verbose --http-proxy  http://proxy61.iitd.ac.in:3128
+
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
 
 # Get srsRAN_Project, compile and install
 RUN git clone https://github.com/srsran/srsRAN_Project.git && \

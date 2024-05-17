@@ -28,12 +28,8 @@ FROM ubuntu:focal as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 
 # Install updates and dependencies
@@ -69,10 +65,15 @@ RUN apt-get update && \
         libtalloc-dev
 
 RUN mkdir -p /etc/apt/keyrings
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    NODE_MAJOR=20 && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && apt install nodejs -y
+
+# Fetch the NodeSource GPG key and configure the repository
+#RUN curl -fsSL -x http://proxy61.iitd.ac.in:3128 --proxy-insecure https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+#    NODE_MAJOR=20 && \
+#    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+#    apt-get update && apt install -y nodejs
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
 
 # Get open5gs code and install
 RUN git clone --recursive https://github.com/open5gs/open5gs && cd open5gs && \
@@ -81,20 +82,15 @@ RUN git clone --recursive https://github.com/open5gs/open5gs && cd open5gs && \
     mkdir -p /open5gs/install/include
 
 # Building WebUI of open5gs
-RUN cd open5gs/webui && npm ci
+# RUN cd open5gs/webui && npm ci
 
 # Build final image
 FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
-
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -122,13 +118,13 @@ RUN apt-get update && \
         gnupg && \
     apt-get autoremove -y && apt-get autoclean
 
-RUN pip3 install click
+RUN pip3 install --proxy=http://proxy61.iitd.ac.in:3128 click 
 
-RUN mkdir -p /etc/apt/keyrings
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    NODE_MAJOR=20 && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && apt install nodejs -y
+#RUN mkdir -p /etc/apt/keyrings
+#RUN curl -fsSL -x http://proxy61.iitd.ac.in:3128 https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+#    NODE_MAJOR=20 && \
+#    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+#    apt-get update && apt install nodejs -y
 
 RUN update-ca-certificates
 

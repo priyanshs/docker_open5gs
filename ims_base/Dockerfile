@@ -28,12 +28,10 @@ FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
 
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
+
 
 # Install updates and dependencies
 RUN apt-get update && \
@@ -42,6 +40,10 @@ RUN apt-get update && \
 					libxml2-dev libpcre2-dev bash-completion g++ autoconf libmnl-dev \
 					libsctp-dev libradcli-dev libradcli4 libjson-c-dev pkg-config iproute2 net-tools \
 					iputils-ping libgcrypt20-dev
+
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
 
 # Fetch Kamailio code
 RUN mkdir -p /usr/local/src/ && cd /usr/local/src/ && \

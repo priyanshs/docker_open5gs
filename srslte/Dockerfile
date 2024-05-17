@@ -28,12 +28,8 @@ FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 # Install updates and dependencies
 RUN apt-get update && \
@@ -43,6 +39,10 @@ RUN apt-get update && \
     libboost-program-options-dev libconfig++-dev net-tools iputils-ping libusb-1.0-0-dev libpython3-dev python3-numpy swig \
     python3-distutils iproute2 wget
 
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
+
 # Get SoapySDR, compile and install
 RUN git clone https://github.com/pothosware/SoapySDR.git && \
     cd SoapySDR && \
@@ -50,6 +50,9 @@ RUN git clone https://github.com/pothosware/SoapySDR.git && \
     mkdir build && cd build && \
     cmake ../ && make && make install && \
     ldconfig
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
 
 # Get Limesuite, compile and install
 RUN git clone https://github.com/myriadrf/LimeSuite.git && \

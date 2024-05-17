@@ -28,13 +28,8 @@ FROM ubuntu:focal as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
-
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 # Install updates and dependencies
 RUN apt-get update && \
@@ -65,6 +60,10 @@ RUN version=3.20 && \
     make install && ldconfig && \
     cmake --version
 
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
+
 # Clone and build UERANSIM
 RUN git clone https://github.com/aligungr/UERANSIM && \
     cd UERANSIM && git checkout tags/v3.2.6 && \
@@ -74,6 +73,9 @@ RUN git clone https://github.com/aligungr/UERANSIM && \
 FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

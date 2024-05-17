@@ -451,7 +451,7 @@ services:
     expose:
       - "9090/tcp"
     ports:
-      - "9090:9090/tcp"
+      - "9091:9090/tcp"
     networks:
       default:
         ipv4_address: ${METRICS_IP}

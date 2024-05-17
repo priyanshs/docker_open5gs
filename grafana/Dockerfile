@@ -28,12 +28,8 @@ FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=http://proxy61.iitd.ac.in:3128
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-transport-https software-properties-common wget && \

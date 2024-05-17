@@ -26,16 +26,11 @@
 
 FROM ubuntu:focal
 
+
+ENV http_proxy=http://proxy61.iitd.ac.in:3128
+ENV https_proxy=https://proxy61.iitd.ac.in:3128
+
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt-get update && apt-get upgrade -y \
-&& apt-get install -y
-
-
 ENV DEB_BUILD_PROFILES="pkg.ngcp-rtpengine.nobcg729"
 
 # Install updates and dependencies
@@ -46,6 +41,10 @@ RUN apt-get update && \
 					libpcap0.8-dev libpcre3-dev libsocket6-perl libspandsp-dev libssl-dev libswresample-dev libsystemd-dev libxmlrpc-core-c3-dev \
 					markdown dkms module-assistant keyutils libnfsidmap2 nfs-common rpcbind libglib2.0-dev zlib1g-dev libavcodec-extra \
 					libcurl4-openssl-dev netcat-openbsd netcat iptables iproute2 net-tools iputils-ping libconfig-tiny-perl libwebsockets-dev
+
+
+RUN git config --global http.proxy http://proxy61.iitd.ac.in:3128
+RUN git config --global https.proxy http://proxy61.iitd.ac.in:3128
 
 # Fetch RTPEngine code (tag mr7.4.1), build and install
 RUN git clone https://github.com/sipwise/rtpengine && \
